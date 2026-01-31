@@ -43,3 +43,7 @@ class PortError(WorkgardenError):
 
 class NoAvailablePortError(PortError):
     """No available ports in range."""
+
+
+class HookError(WorkgardenError):
+    """Hook execution errors."""

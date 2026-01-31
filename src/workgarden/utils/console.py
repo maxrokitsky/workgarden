@@ -43,3 +43,31 @@ def print_config_panel(config_dict: dict, title: str = "Configuration") -> None:
     yaml_str = yaml.dump(config_dict, default_flow_style=False, sort_keys=False)
     syntax = Syntax(yaml_str, "yaml", theme="monokai", line_numbers=False)
     console.print(Panel(syntax, title=title, border_style="blue"))
+
+
+def print_operation_status(name: str, status: str) -> None:
+    """Print operation status with appropriate styling.
+
+    Args:
+        name: Operation name/description
+        status: One of "starting", "completed", "failed", "rolling_back", "skipped"
+    """
+    status_styles = {
+        "starting": "[blue]...[/blue]",
+        "completed": "[green]OK[/green]",
+        "failed": "[red]FAILED[/red]",
+        "rolling_back": "[yellow]ROLLBACK[/yellow]",
+        "skipped": "[dim]SKIPPED[/dim]",
+    }
+    style = status_styles.get(status, status)
+    console.print(f"  {style} {name}")
+
+
+def print_dry_run_banner() -> None:
+    """Print a banner indicating dry-run mode."""
+    console.print(
+        Panel(
+            "[yellow]DRY RUN MODE[/yellow] - No changes will be made",
+            border_style="yellow",
+        )
+    )
