@@ -11,7 +11,7 @@ CLI tool for managing git worktrees with automatic Docker Compose port allocatio
 - **Environment templating** - Copy `.env` files with variable substitution (`{{BRANCH}}`, `{{PORT_*}}`, etc.)
 - **Docker Compose override** - Generates `docker-compose.override.worktree.yml` without modifying originals
 - **Editor integration** - Open worktrees in VS Code, Cursor, Zed, or any editor
-- **Hooks** - Run custom scripts on `post_create` and `post_setup` events
+- **Lifecycle hooks** - Run custom scripts at `post_create`, `post_setup`, `pre_remove`, and `post_remove` events
 - **Claude Code support** - Copies `.claude` configuration to worktrees
 
 ## Installation
@@ -72,6 +72,23 @@ editor:
   auto_open: false        # Open editor automatically on create
 
 hooks:
-  post_create: []         # Commands to run after worktree creation
-  post_setup: []          # Commands to run after full setup
+  post_create:            # Commands to run after worktree creation
+    - "echo Created {{BRANCH}} at {{WORKTREE_PATH}}"
+  post_setup:             # Commands to run after full setup
+    - "npm install"
+    - "touch {{WORKTREE_PATH}}/.setup_complete"
+  pre_remove: []          # Commands to run before worktree removal
+  post_remove: []         # Commands to run after worktree removal
 ```
+
+### Hook Variables
+
+Hooks support `{{VARIABLE}}` substitution and expose `WG_*` environment variables:
+
+| Variable | Description |
+|----------|-------------|
+| `{{BRANCH}}` / `$WG_BRANCH` | Full branch name (e.g., `feature/my-feature`) |
+| `{{BRANCH_SLUG}}` / `$WG_BRANCH_SLUG` | Slugified branch name (e.g., `feature-my-feature`) |
+| `{{WORKTREE_PATH}}` / `$WG_WORKTREE_PATH` | Absolute path to the worktree |
+| `{{REPO_NAME}}` / `$WG_REPO_NAME` | Repository name |
+| `{{PORT_*}}` / `$WG_PORT_*` | Allocated ports (e.g., `{{PORT_WEB}}`, `$WG_PORT_DB`) |

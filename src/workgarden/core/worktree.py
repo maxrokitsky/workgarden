@@ -1,5 +1,6 @@
 """Worktree management orchestration with transaction support."""
 
+import logging
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -8,8 +9,10 @@ from pathlib import Path
 
 from workgarden.config.loader import ConfigLoader
 from workgarden.config.schema import WorkgardenConfig
+from workgarden.core.hooks import HookRunner
 from workgarden.exceptions import (
     GitError,
+    HookError,
 )
 from workgarden.models.state import StateManager
 from workgarden.models.worktree import WorktreeInfo
@@ -123,17 +126,30 @@ class UpdateStateOperation(Operation):
 
 
 class RunHookOperation(Operation):
-    """Operation to run lifecycle hooks (stub for Phase 3)."""
+    """Operation to run lifecycle hooks."""
 
-    def __init__(self, hook_name: str, hooks: list[str], context: TemplateContext):
+    def __init__(
+        self,
+        hook_name: str,
+        hooks: list[str],
+        context: TemplateContext,
+        working_dir: Path | None = None,
+    ):
         super().__init__(f"Run {hook_name} hooks")
         self.hook_name = hook_name
         self.hooks = hooks
         self.context = context
+        self.working_dir = working_dir
 
     def execute(self) -> None:
-        # Stub for Phase 3 - hooks not implemented yet
-        pass
+        if not self.hooks:
+            return
+
+        runner = HookRunner(
+            context=self.context,
+            working_dir=self.working_dir,
+        )
+        runner.run(self.hook_name, self.hooks)
 
     def rollback(self) -> None:
         # Hooks cannot be rolled back - side effects can't be undone
@@ -362,13 +378,14 @@ class WorktreeManager:
             )
         )
 
-        # Step 2: Run post_create hooks (stub)
+        # Step 2: Run post_create hooks
         if not options.skip_hooks:
             transaction.add(
                 RunHookOperation(
                     hook_name="post_create",
                     hooks=self.config.hooks.post_create,
                     context=context,
+                    working_dir=worktree_path,
                 )
             )
 
@@ -381,13 +398,14 @@ class WorktreeManager:
             )
         )
 
-        # Step 4: Run post_setup hooks (stub)
+        # Step 4: Run post_setup hooks
         if not options.skip_hooks:
             transaction.add(
                 RunHookOperation(
                     hook_name="post_setup",
                     hooks=self.config.hooks.post_setup,
                     context=context,
+                    working_dir=worktree_path,
                 )
             )
 
@@ -438,8 +456,8 @@ class WorktreeManager:
                 # Path might not be a valid git directory
                 pass
 
-        # Build template context for hooks (for future use)
-        _context = TemplateContext(
+        # Build template context for hooks
+        context = TemplateContext(
             branch=worktree.branch,
             branch_slug=slug,
             worktree_path=worktree.path,
@@ -447,13 +465,22 @@ class WorktreeManager:
             port_mappings=worktree.port_mappings,
         )
 
-        # Run pre_remove hooks (stub - no rollback for hooks)
+        # Run pre_remove hooks (run in worktree directory, fail if hooks fail)
         if not options.skip_hooks and self.config.hooks.pre_remove:
             if self.progress_callback:
                 self.progress_callback("Run pre_remove hooks", "starting")
-            # Stub - hooks not implemented yet
-            if self.progress_callback:
-                self.progress_callback("Run pre_remove hooks", "completed")
+            try:
+                runner = HookRunner(context=context, working_dir=worktree.path)
+                runner.run("pre_remove", self.config.hooks.pre_remove)
+                if self.progress_callback:
+                    self.progress_callback("Run pre_remove hooks", "completed")
+            except HookError as e:
+                if self.progress_callback:
+                    self.progress_callback("Run pre_remove hooks", "failed")
+                return OperationResult(
+                    success=False,
+                    error=str(e),
+                )
 
         # Remove git worktree
         if worktree.path.exists():
@@ -491,13 +518,20 @@ class WorktreeManager:
                 if self.progress_callback:
                     self.progress_callback(f"Delete branch {worktree.branch}", "skipped")
 
-        # Run post_remove hooks (stub)
+        # Run post_remove hooks (run in main repo directory, log warning but don't fail)
         if not options.skip_hooks and self.config.hooks.post_remove:
             if self.progress_callback:
                 self.progress_callback("Run post_remove hooks", "starting")
-            # Stub - hooks not implemented yet
-            if self.progress_callback:
-                self.progress_callback("Run post_remove hooks", "completed")
+            try:
+                runner = HookRunner(context=context, working_dir=self.root_path)
+                runner.run("post_remove", self.config.hooks.post_remove)
+                if self.progress_callback:
+                    self.progress_callback("Run post_remove hooks", "completed")
+            except HookError as e:
+                # Log warning but don't fail - worktree is already removed
+                logging.getLogger(__name__).warning(f"post_remove hook failed: {e}")
+                if self.progress_callback:
+                    self.progress_callback("Run post_remove hooks", "warning")
 
         return OperationResult(
             success=True,
