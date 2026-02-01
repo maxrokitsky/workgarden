@@ -118,6 +118,7 @@ class OperationProgressReporter:
             status: One of "starting", "completed", "failed", "rolling_back", "skipped"
         """
         if status == "starting":
+            self._stop_spinner()
             self._status = console.status(f"  [blue]...[/blue] {name}", spinner="dots")
             self._status.start()
         elif status == "skipped":
@@ -132,6 +133,8 @@ class OperationProgressReporter:
         elif status == "rolling_back":
             self._stop_spinner()
             console.print(f"  [yellow]ROLLBACK[/yellow] {name}")
+        else:
+            raise ValueError(f"Unknown operation status: {status!r}")
 
     def _stop_spinner(self) -> None:
         """Stop the spinner if it's running."""

@@ -58,7 +58,7 @@ def list_worktrees(
         ]
         table = create_table("Managed Worktrees", columns)
 
-        for slug, wt in worktrees.items():
+        for _slug, wt in worktrees.items():
             status = manager.get_worktree_status(wt)
 
             # Format status with color and icon
