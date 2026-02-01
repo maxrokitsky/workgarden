@@ -1,6 +1,6 @@
 # Workgarden
 
-CLI tool for managing git worktrees with automatic Docker Compose port allocation, environment file templating, and Claude Code configuration support.
+CLI tool for managing git worktrees with automatic Docker Compose port allocation and environment file templating.
 
 !!! WORK IN PROGRESS
 
@@ -12,7 +12,6 @@ CLI tool for managing git worktrees with automatic Docker Compose port allocatio
 - **Docker Compose override** - Generates `docker-compose.override.worktree.yml` without modifying originals
 - **Editor integration** - Open worktrees in VS Code, Cursor, Zed, or any editor
 - **Lifecycle hooks** - Run custom scripts at `post_create`, `post_setup`, `pre_remove`, and `post_remove` events
-- **Claude Code support** - Copies `.claude` configuration to worktrees
 
 ## Installation
 

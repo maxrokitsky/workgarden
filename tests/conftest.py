@@ -66,11 +66,9 @@ hooks:
   post_setup: []
   pre_remove: []
   post_remove: []
-claude:
-  copy_config: true
-  copy_items:
-    - "settings.json"
-    - "commands/"
+editor:
+  command: "code"
+  auto_open: false
 """
     (temp_git_repo / ".workgarden.yaml").write_text(config_content)
     return temp_git_repo

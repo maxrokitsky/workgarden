@@ -41,13 +41,6 @@ class HooksConfig(BaseModel):
     post_remove: list[str] = Field(default_factory=list)
 
 
-class ClaudeConfig(BaseModel):
-    """Claude Code configuration."""
-
-    copy_config: bool = True
-    copy_items: list[str] = Field(default_factory=lambda: ["settings.json", "commands/"])
-
-
 class EditorConfig(BaseModel):
     """Editor configuration."""
 
@@ -64,7 +57,6 @@ class WorkgardenConfig(BaseModel):
     environment: EnvironmentConfig = Field(default_factory=EnvironmentConfig)
     docker_compose: DockerComposeConfig = Field(default_factory=DockerComposeConfig)
     hooks: HooksConfig = Field(default_factory=HooksConfig)
-    claude: ClaudeConfig = Field(default_factory=ClaudeConfig)
     editor: EditorConfig = Field(default_factory=EditorConfig)
 
     def to_yaml_dict(self) -> dict:

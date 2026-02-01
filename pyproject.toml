@@ -1,7 +1,7 @@
 [project]
 name = "workgarden"
 version = "0.1.0"
-description = "CLI tool for managing git worktrees with Docker Compose and Claude Code support"
+description = "CLI tool for managing git worktrees with Docker Compose support"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

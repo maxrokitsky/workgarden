@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Workgarden is a CLI tool for managing git worktrees with automatic Docker Compose port allocation, environment file templating, and Claude Code configuration support. The CLI uses `wg` or `workgarden` commands.
+Workgarden is a CLI tool for managing git worktrees with automatic Docker Compose port allocation, and environment file templating support. The CLI uses `wg` or `workgarden` commands.
 
 ## Commands
 

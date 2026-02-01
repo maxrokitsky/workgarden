@@ -8,7 +8,7 @@ from workgarden.cli.commands import open as open_cmd
 
 app = typer.Typer(
     name="workgarden",
-    help="Git worktree manager with Docker Compose and Claude Code support.",
+    help="Git worktree manager with Docker Compose support.",
     no_args_is_help=True,
 )
 
