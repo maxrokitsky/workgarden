@@ -29,7 +29,7 @@ class WorktreeInfo(BaseModel):
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "WorktreeInfo":
+    def from_dict(cls, data: dict) -> WorktreeInfo:
         """Create from dictionary (loaded from JSON)."""
         return cls(
             path=Path(data["path"]),

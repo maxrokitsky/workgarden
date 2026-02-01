@@ -1,12 +1,8 @@
 """Tests for console utilities."""
 
-from io import StringIO
-from unittest.mock import patch
 
-import pytest
 
 from workgarden.utils.console import (
-    console,
     create_table,
     print_dry_run_banner,
     print_error,

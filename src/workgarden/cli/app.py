@@ -2,7 +2,8 @@
 
 import typer
 
-from workgarden.cli.commands import config, create, list as list_cmd, remove
+from workgarden.cli.commands import config, create, remove
+from workgarden.cli.commands import list as list_cmd
 
 app = typer.Typer(
     name="workgarden",

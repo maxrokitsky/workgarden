@@ -1,9 +1,6 @@
 """Tests for Operation classes and TransactionManager."""
 
 from pathlib import Path
-from unittest.mock import MagicMock
-
-import pytest
 
 from workgarden.core.worktree import (
     CreateWorktreeOperation,

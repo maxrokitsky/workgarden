@@ -16,7 +16,7 @@ install: ## Install dependencies
 	uv sync
 
 install-dev: ## Install dependencies including dev tools
-	uv sync --extra dev
+	uv sync --all-groups --all-extras --all-packages
 
 test: ## Run tests
 	uv run python -m pytest
@@ -28,7 +28,7 @@ test-cov: ## Run tests with coverage report
 	uv run python -m pytest --cov=workgarden --cov-report=term-missing
 
 lint: ## Run linter (ruff)
-	uv run ruff check src tests
+	uv run ruff check src tests --fix
 
 format: ## Format code (ruff)
 	uv run ruff format src tests

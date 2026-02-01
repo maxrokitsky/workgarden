@@ -1,18 +1,15 @@
 """Worktree management orchestration with transaction support."""
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Callable
 
 from workgarden.config.loader import ConfigLoader
 from workgarden.config.schema import WorkgardenConfig
 from workgarden.exceptions import (
     GitError,
-    WorkgardenError,
-    WorktreeExistsError,
-    WorktreeNotFoundError,
 )
 from workgarden.models.state import StateManager
 from workgarden.models.worktree import WorktreeInfo
@@ -434,14 +431,14 @@ class WorktreeManager:
                 if self.git.has_uncommitted_changes(worktree.path):
                     return OperationResult(
                         success=False,
-                        error=f"Worktree has uncommitted changes. Use --force to remove anyway.",
+                        error="Worktree has uncommitted changes. Use --force to remove anyway.",
                     )
             except GitError:
                 # Path might not be a valid git directory
                 pass
 
-        # Build template context for hooks
-        context = TemplateContext(
+        # Build template context for hooks (for future use)
+        _context = TemplateContext(
             branch=worktree.branch,
             branch_slug=slug,
             worktree_path=worktree.path,

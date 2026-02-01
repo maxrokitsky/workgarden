@@ -3,8 +3,6 @@
 import subprocess
 from pathlib import Path
 
-import pytest
-
 from workgarden.core.worktree import CreateOptions, RemoveOptions, WorktreeManager
 from workgarden.models.worktree import WorktreeInfo
 
@@ -77,7 +75,8 @@ class TestWorktreeManagerCreate:
 
         assert result.success is True
         # Branch slug should be feature-my-feature
-        expected_path = temp_git_repo_with_config.parent / "test-repo-worktrees" / "feature-my-feature"
+        worktrees_dir = temp_git_repo_with_config.parent / "test-repo-worktrees"
+        expected_path = worktrees_dir / "feature-my-feature"
         assert result.worktree.path == expected_path
 
     def test_create_worktree_with_progress_callback(self, temp_git_repo_with_config: Path):
