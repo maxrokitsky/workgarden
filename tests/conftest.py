@@ -83,3 +83,24 @@ def chdir_to_repo(temp_git_repo_with_config: Path):
     os.chdir(temp_git_repo_with_config)
     yield temp_git_repo_with_config
     os.chdir(original_dir)
+
+
+@pytest.fixture
+def temp_git_repo_with_worktree(temp_git_repo_with_config: Path) -> tuple[Path, Path]:
+    """Create a temporary git repository with a worktree.
+
+    Returns:
+        Tuple of (main_repo_path, worktree_path)
+    """
+    main_repo = temp_git_repo_with_config
+    worktree_path = main_repo.parent / "test-worktree"
+
+    # Create a branch and worktree
+    subprocess.run(
+        ["git", "worktree", "add", "-b", "test-branch", str(worktree_path)],
+        cwd=main_repo,
+        capture_output=True,
+        check=True,
+    )
+
+    return main_repo, worktree_path

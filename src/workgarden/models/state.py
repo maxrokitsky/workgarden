@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 from workgarden.exceptions import StateError
 from workgarden.models.worktree import WorktreeInfo
+from workgarden.utils.root import find_main_repo_root
 
 STATE_FILENAME = ".workgarden.state.json"
 
@@ -42,7 +43,7 @@ class StateManager:
     """Manages the .workgarden.state.json file."""
 
     def __init__(self, root_path: Path | None = None):
-        self.root_path = root_path or Path.cwd()
+        self.root_path = root_path or find_main_repo_root()
         self._state: WorkgardenState | None = None
 
     @property

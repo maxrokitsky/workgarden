@@ -14,6 +14,7 @@ from workgarden.exceptions import (
 from workgarden.models.state import StateManager
 from workgarden.models.worktree import WorktreeInfo
 from workgarden.utils.git import GitUtils, get_branch_slug
+from workgarden.utils.root import find_main_repo_root
 from workgarden.utils.template import TemplateContext, substitute_path_variables
 
 
@@ -227,7 +228,7 @@ class WorktreeManager:
         root_path: Path | None = None,
         progress_callback: ProgressCallback | None = None,
     ):
-        self.root_path = root_path or Path.cwd()
+        self.root_path = root_path or find_main_repo_root()
         self.progress_callback = progress_callback
         self._git: GitUtils | None = None
         self._state: StateManager | None = None

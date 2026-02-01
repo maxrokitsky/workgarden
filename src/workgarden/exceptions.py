@@ -47,3 +47,7 @@ class NoAvailablePortError(PortError):
 
 class HookError(WorkgardenError):
     """Hook execution errors."""
+
+
+class RootDetectionError(WorkgardenError):
+    """Failed to detect repository root."""

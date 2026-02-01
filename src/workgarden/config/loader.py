@@ -7,6 +7,7 @@ from pydantic import ValidationError
 
 from workgarden.config.schema import WorkgardenConfig
 from workgarden.exceptions import ConfigNotFoundError, ConfigValidationError
+from workgarden.utils.root import find_main_repo_root
 
 CONFIG_FILENAME = ".workgarden.yaml"
 
@@ -15,7 +16,7 @@ class ConfigLoader:
     """Loads and manages workgarden configuration."""
 
     def __init__(self, root_path: Path | None = None):
-        self.root_path = root_path or Path.cwd()
+        self.root_path = root_path or find_main_repo_root()
         self._config: WorkgardenConfig | None = None
 
     @property
