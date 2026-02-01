@@ -4,7 +4,7 @@ import typer
 
 from workgarden.config.loader import ConfigLoader
 from workgarden.core.worktree import RemoveOptions, WorktreeManager
-from workgarden.exceptions import ConfigNotFoundError
+from workgarden.exceptions import ConfigNotFoundError, RootDetectionError
 from workgarden.utils.console import (
     console,
     print_error,
@@ -27,11 +27,14 @@ def remove(
 ) -> None:
     """Remove a worktree."""
     # Verify config exists
-    config_loader = ConfigLoader()
     try:
+        config_loader = ConfigLoader()
         config_loader.load()
+    except RootDetectionError:
+        print_error("Not in a git repository")
+        raise typer.Exit(1)
     except ConfigNotFoundError:
-        print_error("No .workgarden.yaml found. Run 'wg config init' first.")
+        print_error("No .workgarden.yaml found in main repository. Run 'wg config init' first.")
         raise typer.Exit(1)
 
     # Create manager
