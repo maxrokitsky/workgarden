@@ -20,37 +20,46 @@ uv run pytest
 
 # Run single test
 uv run pytest tests/test_file.py::test_name -v
+
+# Lint with auto-fix
+make lint
+
+# Format code
+make format
 ```
 
 ## Architecture
 
 **Entry points**: `wg` and `workgarden` commands defined in pyproject.toml, pointing to `workgarden.cli.app:app`
 
-**Core orchestration flow** (WorktreeManager.create):
-1. Load config (.workgarden.yaml) and state (.workgarden.state.json)
-2. Create git worktree
-3. Run post_create hooks
-4. Scan docker-compose for ports (parse ${VAR} syntax)
-5. Allocate free ports via socket bind check
-6. Generate docker-compose.override.worktree.yml
-7. Copy .env files with variable substitution ({{BRANCH}}, {{PORT_*}}, etc.)
-8. Copy .claude config
-9. Update state file
-10. Run post_setup hooks
-11. On error: rollback all steps in reverse order
+**Transaction-based operations**: WorktreeManager uses a TransactionManager that executes operations in sequence with automatic rollback on failure. Each operation (CreateWorktreeOperation, UpdateStateOperation, RunHookOperation) implements execute() and rollback() methods.
+
+**Current orchestration flow** (WorktreeManager.create):
+1. Validate: check if worktree already exists, determine if branch needs creation
+2. Calculate worktree path from config templates
+3. Build transaction with operations:
+   - CreateWorktreeOperation (git worktree add)
+   - RunHookOperation for post_create (stub)
+   - UpdateStateOperation (add to .workgarden.state.json)
+   - RunHookOperation for post_setup (stub)
+4. Execute transaction - on any failure, rollback completed operations in reverse
 
 **Key modules**:
-- `core/worktree.py` - Main orchestrator with create/remove/list
-- `core/ports.py` - Port allocation via socket bind, tracks in state
-- `core/docker.py` - Parses compose files, generates override (never modifies original)
-- `core/environment.py` - Copies .env with {{VARIABLE}} substitution
+- `core/worktree.py` - WorktreeManager orchestrator, TransactionManager, Operation classes
 - `config/schema.py` - Pydantic models for .workgarden.yaml
+- `config/loader.py` - Config file loading with defaults
 - `models/state.py` - StateManager for .workgarden.state.json
+- `models/worktree.py` - WorktreeInfo data model
+- `utils/git.py` - GitUtils wrapper for git commands
+- `utils/root.py` - find_main_repo_root() for worktree-aware root detection
+- `utils/template.py` - TemplateContext and variable substitution ({var} for paths, {{VAR}} for content)
 
-**State management**: All worktree metadata and allocated ports stored in `.workgarden.state.json` in the main repo.
+**State management**: All worktree metadata stored in `.workgarden.state.json` in the main repo root.
+
+**Planned modules** (not yet implemented): Port allocation, Docker Compose override generation, .env copying with substitution, hook execution.
 
 ## Tech Stack
 
-- Python with Typer (CLI), Rich (UI), Pydantic (config validation)
+- Python 3.14+ with Typer (CLI), Rich (UI), Pydantic (config validation)
 - ruamel.yaml for YAML manipulation (preserves comments)
-- Uses `uv` as package manager
+- Uses `uv` as package manager, `ruff` for linting

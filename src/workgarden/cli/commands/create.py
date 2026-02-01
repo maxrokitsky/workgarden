@@ -6,10 +6,10 @@ from workgarden.config.loader import ConfigLoader
 from workgarden.core.worktree import CreateOptions, WorktreeManager
 from workgarden.exceptions import ConfigNotFoundError, RootDetectionError
 from workgarden.utils.console import (
+    OperationProgressReporter,
     console,
     print_dry_run_banner,
     print_error,
-    print_operation_status,
     print_success,
 )
 
@@ -42,10 +42,7 @@ def create(
         print_dry_run_banner()
 
     # Create manager with progress callback
-    def progress_callback(name: str, status: str) -> None:
-        print_operation_status(name, status)
-
-    manager = WorktreeManager(progress_callback=progress_callback)
+    manager = WorktreeManager(progress_callback=OperationProgressReporter())
 
     # Build options
     options = CreateOptions(
