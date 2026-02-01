@@ -137,15 +137,31 @@ class TestUpdateStateOperation:
 
 
 class TestRunHookOperation:
-    """Tests for RunHookOperation (stub)."""
+    """Tests for RunHookOperation."""
 
-    def test_execute_is_noop(self):
-        """Test that execute is a no-op (stub)."""
-        context = TemplateContext(branch="test", branch_slug="test")
+    def test_execute_runs_hooks(self, tmp_path: Path):
+        """Test that execute runs hooks via HookRunner."""
+        context = TemplateContext(branch="test", branch_slug="test", worktree_path=tmp_path)
+        marker = tmp_path / "hook_ran.txt"
         op = RunHookOperation(
             hook_name="post_create",
-            hooks=["echo test"],
+            hooks=[f"touch {marker}"],
             context=context,
+            working_dir=tmp_path,
+        )
+
+        op.execute()
+
+        assert marker.exists()
+
+    def test_execute_skips_empty_hooks(self, tmp_path: Path):
+        """Test that execute does nothing when hooks list is empty."""
+        context = TemplateContext(branch="test", branch_slug="test", worktree_path=tmp_path)
+        op = RunHookOperation(
+            hook_name="post_create",
+            hooks=[],
+            context=context,
+            working_dir=tmp_path,
         )
 
         # Should not raise
