@@ -12,6 +12,12 @@ dependencies = [
     "ruamel.yaml>=0.18.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-tmp-files>=0.0.2",
+]
+
 [project.scripts]
 wg = "workgarden.cli.app:app"
 workgarden = "workgarden.cli.app:app"

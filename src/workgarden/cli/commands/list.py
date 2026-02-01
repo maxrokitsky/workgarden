@@ -31,20 +31,20 @@ def list_worktrees(
 
     if not worktrees:
         if json_output:
-            console.print("{}")
+            print("{}")
         else:
             print_info("No worktrees found")
         return
 
     if json_output:
-        # JSON output mode
+        # JSON output mode - use print() to avoid Rich wrapping
         output = {}
         for slug, wt in worktrees.items():
             status = manager.get_worktree_status(wt)
             data = wt.model_dump_json_compatible()
             data["status"] = status
             output[slug] = data
-        console.print(json.dumps(output, indent=2))
+        print(json.dumps(output, indent=2))
     else:
         # Table output mode
         table = create_table("Managed Worktrees", ["Branch", "Path", "Ports", "Status"])
