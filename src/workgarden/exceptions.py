@@ -51,3 +51,7 @@ class HookError(WorkgardenError):
 
 class RootDetectionError(WorkgardenError):
     """Failed to detect repository root."""
+
+
+class EditorError(WorkgardenError):
+    """Editor-related errors."""

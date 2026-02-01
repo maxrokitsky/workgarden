@@ -48,6 +48,13 @@ class ClaudeConfig(BaseModel):
     copy_items: list[str] = Field(default_factory=lambda: ["settings.json", "commands/"])
 
 
+class EditorConfig(BaseModel):
+    """Editor configuration."""
+
+    command: str | None = None  # e.g., "code", "cursor"
+    auto_open: bool = False  # Open automatically on create
+
+
 class WorkgardenConfig(BaseModel):
     """Root configuration model for .workgarden.yaml."""
 
@@ -58,6 +65,7 @@ class WorkgardenConfig(BaseModel):
     docker_compose: DockerComposeConfig = Field(default_factory=DockerComposeConfig)
     hooks: HooksConfig = Field(default_factory=HooksConfig)
     claude: ClaudeConfig = Field(default_factory=ClaudeConfig)
+    editor: EditorConfig = Field(default_factory=EditorConfig)
 
     def to_yaml_dict(self) -> dict:
         """Convert to dictionary suitable for YAML output."""
