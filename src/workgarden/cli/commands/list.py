@@ -49,32 +49,36 @@ def list_worktrees(
             output[slug] = data
         print(json.dumps(output, indent=2))
     else:
-        # Table output mode
-        table = create_table("Managed Worktrees", ["Branch", "Path", "Ports", "Status"])
+        # Table output mode with styled columns
+        columns = [
+            {"name": "Branch", "style": "cyan", "no_wrap": True},
+            {"name": "Path", "style": "dim"},
+            {"name": "Ports", "justify": "center"},
+            {"name": "Status", "justify": "center", "no_wrap": True},
+        ]
+        table = create_table("Managed Worktrees", columns)
 
-        for slug, wt in worktrees.items():
+        for _slug, wt in worktrees.items():
             status = manager.get_worktree_status(wt)
 
-            # Format status with color
-            if status == "OK":
-                status_str = "[green]OK[/green]"
-            elif status == "Missing":
-                status_str = "[red]Missing[/red]"
-            elif status == "Modified":
-                status_str = "[yellow]Modified[/yellow]"
-            else:
-                status_str = status
+            # Format status with color and icon
+            status_styles = {
+                "OK": "[green]● OK[/green]",
+                "Missing": "[red]✗ Missing[/red]",
+                "Modified": "[yellow]◐ Modified[/yellow]",
+            }
+            status_str = status_styles.get(status, status)
 
             # Format ports
             if wt.port_mappings:
                 ports_str = ", ".join(
-                    f"{name}:{port}" for name, port in wt.port_mappings.items()
+                    f"{name}:[bold]{port}[/bold]" for name, port in wt.port_mappings.items()
                 )
             else:
-                ports_str = "-"
+                ports_str = "[dim]—[/dim]"
 
             table.add_row(
-                f"[cyan]{wt.branch}[/cyan]",
+                wt.branch,
                 str(wt.path),
                 ports_str,
                 status_str,

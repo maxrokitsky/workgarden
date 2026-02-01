@@ -6,9 +6,9 @@ from workgarden.config.loader import ConfigLoader
 from workgarden.core.worktree import RemoveOptions, WorktreeManager
 from workgarden.exceptions import ConfigNotFoundError, RootDetectionError
 from workgarden.utils.console import (
+    OperationProgressReporter,
     console,
     print_error,
-    print_operation_status,
     print_success,
     print_warning,
 )
@@ -80,10 +80,7 @@ def remove(
             raise typer.Exit(0)
 
     # Set up progress callback
-    def progress_callback(name: str, status: str) -> None:
-        print_operation_status(name, status)
-
-    manager.progress_callback = progress_callback
+    manager.progress_callback = OperationProgressReporter()
 
     # Build options
     options = RemoveOptions(
