@@ -1,6 +1,7 @@
 """Editor detection and launching utilities."""
 
 import os
+import shlex
 import shutil
 import subprocess
 from dataclasses import dataclass
@@ -109,14 +110,18 @@ def open_editor(path: Path, editor_command: str | None = None) -> None:
             "$VISUAL, or $EDITOR environment variable."
         )
 
-    # Verify the editor command exists
-    if not shutil.which(command):
-        raise EditorError(f"Editor '{command}' not found in PATH")
+    # Parse the command string to handle arguments (e.g., "code --wait")
+    command_args = shlex.split(command)
+    executable = command_args[0]
+
+    # Verify the editor executable exists
+    if not shutil.which(executable):
+        raise EditorError(f"Editor executable '{executable}' not found in PATH")
 
     try:
         # Launch editor as a detached process so it doesn't block the CLI
         subprocess.Popen(
-            [command, str(path)],
+            [*command_args, str(path)],
             start_new_session=True,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,

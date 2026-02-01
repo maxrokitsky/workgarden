@@ -51,7 +51,7 @@ def open_worktree(
         print_error(f"Worktree not found for branch '{branch}'")
         raise typer.Exit(1)
 
-    slug, worktree = result
+    _, worktree = result
 
     # Check if worktree path exists
     if not worktree.path.exists():
