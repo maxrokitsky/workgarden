@@ -27,7 +27,7 @@ class WorkgardenState(BaseModel):
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "WorkgardenState":
+    def from_dict(cls, data: dict) -> WorkgardenState:
         """Create from dictionary (loaded from JSON)."""
         worktrees = {}
         for slug, wt_data in data.get("worktrees", {}).items():

@@ -12,6 +12,13 @@ dependencies = [
     "ruamel.yaml>=0.18.0",
 ]
 
+[dependency-groups]
+dev = [
+    "ruff",
+    "pytest>=8.0.0",
+    "pytest-tmp-files>=0.0.2",
+]
+
 [project.scripts]
 wg = "workgarden.cli.app:app"
 workgarden = "workgarden.cli.app:app"
@@ -29,7 +36,7 @@ pythonpath = ["src"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]

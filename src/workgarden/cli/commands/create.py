@@ -1,6 +1,17 @@
-"""Create command placeholder."""
+"""Create command for worktree management."""
 
 import typer
+
+from workgarden.config.loader import ConfigLoader
+from workgarden.core.worktree import CreateOptions, WorktreeManager
+from workgarden.exceptions import ConfigNotFoundError
+from workgarden.utils.console import (
+    console,
+    print_dry_run_banner,
+    print_error,
+    print_operation_status,
+    print_success,
+)
 
 app = typer.Typer()
 
@@ -15,6 +26,49 @@ def create(
     dry_run: bool = typer.Option(False, "--dry-run", help="Show what would be done"),
 ) -> None:
     """Create a new worktree."""
-    # TODO: Implement in Phase 5
-    typer.echo(f"Creating worktree for branch: {branch}")
-    typer.echo("Not implemented yet - coming in Phase 5")
+    # Verify config exists
+    config_loader = ConfigLoader()
+    try:
+        config_loader.load()
+    except ConfigNotFoundError:
+        print_error("No .workgarden.yaml found. Run 'wg config init' first.")
+        raise typer.Exit(1)
+
+    # Show dry-run banner if applicable
+    if dry_run:
+        print_dry_run_banner()
+
+    # Create manager with progress callback
+    def progress_callback(name: str, status: str) -> None:
+        print_operation_status(name, status)
+
+    manager = WorktreeManager(progress_callback=progress_callback)
+
+    # Build options
+    options = CreateOptions(
+        branch=branch,
+        base_branch=base,
+        skip_env=no_env,
+        skip_ports=no_ports,
+        skip_hooks=no_hooks,
+        dry_run=dry_run,
+    )
+
+    # Execute
+    console.print(f"Creating worktree for branch: [cyan]{branch}[/cyan]")
+    result = manager.create(options)
+
+    if result.success:
+        if dry_run:
+            console.print("\n[yellow]Dry run complete - no changes made[/yellow]")
+        else:
+            print_success(f"Worktree created at: {result.worktree.path}")
+    else:
+        print_error(result.error)
+        if result.rolled_back:
+            console.print("[yellow]Changes have been rolled back[/yellow]")
+            if result.rollback_errors:
+                console.print("[red]Rollback errors:[/red]")
+                for err in result.rollback_errors:
+                    console.print(f"  - {err}")
+        raise typer.Exit(1)
